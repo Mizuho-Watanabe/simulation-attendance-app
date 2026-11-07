@@ -17,10 +17,10 @@
 - DockerおよびDocker Desktopがインストールされていること
 
 ### 手順
-- Bash機能を使おうとして2時間格闘しましたができませんでした。　地の文のまま見てください。
+- Bash機能が使えないです　使い方を教えてほしいです　とりあえず地の文のまま見てください
 - 1.リポジトリをクローンする
-- git clone <>
-- cd <>
+- git clone https://github.com/Mizuho-Watanabe/simulation-attendance-app.git
+- cd attendance-app
 
 - 2.環境変数ファイルを作成する
 - cp .env.example .env
