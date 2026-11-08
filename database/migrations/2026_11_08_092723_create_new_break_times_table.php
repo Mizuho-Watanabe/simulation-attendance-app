@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('new_breaks', function (Blueprint $table) {
+        Schema::create('new_break_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('application_id')->constrained('applications')->cascadeOnDelete();
             $table->integer('index')->default(1);
