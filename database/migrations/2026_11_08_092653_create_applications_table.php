@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('applications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('attendance_record_id')->constrained('attendance_records')->cascadeOnDelete();
+            $table->date('date');
+            $table->datetime('new_clock_in');
+            $table->datetime('new_clock_out')->nullable();
+            $table->time('new_total_break_time')->default('00:00');
+            $table->time('new_total_time')->nullable();
+            $table->string('approval_status')->default('承認待ち');
+            $table->text('comment');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('applications');
+    }
+};
