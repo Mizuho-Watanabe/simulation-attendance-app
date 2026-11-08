@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * 代入可能な属性
      *
      * @var array<int, string>
      */
@@ -24,12 +25,13 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * 代入不可能な属性
      *
      * @var array<int, string>
      */
     protected $hidden = [
         'password',
+        'admin_status',
         'remember_token',
     ];
 
@@ -42,4 +44,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * このuserが持つattendanceを取得
+     */
+    public function attendances(): BelongsToMany
+    {
+        return $this->belongsToMany(Attendance::class);
+    }
 }
