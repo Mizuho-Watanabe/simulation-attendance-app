@@ -15,6 +15,13 @@
 
 - 2.環境変数ファイルを作成する
 - cp .env.example .env
+- .envファイル内の以下のDB接続情報を確認・設定する
+- DB_CONNECTION=mysql
+- DB_HOST=mysql
+- DB_PORT=3306
+- DB_DATABASE=laravel
+- DB_USERNAME=sail
+- DB_PASSWORD=password
 
 - 3.composerパッケージをインストールする
 - docker run --rm \
