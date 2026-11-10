@@ -52,4 +52,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Attendance::class);
     }
+
+    /**
+     * admin_statusを取得
+     */
+    const STATUS_GENERAL = 0;
+    const STATUS_ADMIN = 1;
+
+    public function getAdminStatusAttribute(): string
+    {
+        return $this->admin_status ? '管理者' : '一般ユーザー';
+    }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->datetime('clock_out')->nullable();
             $table->time('total_break_time')->default('00:00');
             $table->time('total_time')->nullable();
-            $table->string('attendance_status')->default('勤務外');
+            $table->tineInteger('attendance_status')->default('0');
             $table->timestamps();
         });
     }

@@ -31,4 +31,15 @@ class Application extends Model
     {
         return $this->belongsTo(Attendance_record::class);
     }
+
+    /**
+     * approval_statusを取得
+     */
+    const STATUS_PEND_APPROVAL = 0;
+    const STATUS_APPROVED = 1;
+
+    public function getApprovalStatusAttribute(): string
+    {
+        return $this->approval_status ? '承認済み' : '承認待ち';
+    }
 }
