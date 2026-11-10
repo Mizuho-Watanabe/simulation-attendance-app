@@ -16,7 +16,6 @@ class New_break_time extends Model
      */
     protected $fillable = [
         'application_id',
-        'index',
         'new_break_in',
         'new_break_out',
     ];

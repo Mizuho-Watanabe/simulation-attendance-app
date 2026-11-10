@@ -16,7 +16,6 @@ class Break_time extends Model
      */
     protected $fillable = [
         'attendance_record_id',
-        'index',
         'break_in',
         'break_out',
     ];

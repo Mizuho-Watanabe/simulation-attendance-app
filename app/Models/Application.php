@@ -20,8 +20,6 @@ class Application extends Model
         'date',
         'new_clock_in',
         'new_clock_out',
-        'new_total_break_time',
-        'new_total_time',
         'approval_status',
         'comment',
     ];
