@@ -65,6 +65,6 @@ class AttendanceRecord extends Model
             self::STATUS_WORKING => '勤務中',
             self::STATUS_BREAKING => '休憩中',
             self::STATUS_FINISHED => '退勤済み',
-        }
+        };
     }
 }
