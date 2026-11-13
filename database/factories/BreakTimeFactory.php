@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\AttendanceRecord;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,7 @@ class BreakTimeFactory extends Factory
     public function definition(): array
     {
         return [
-            'attendance_record_id' => AttendanceRecprd::factory(),
+            'attendance_record_id' => AttendanceRecord::factory(),
             'break_in' => '12:00',
             'break_out' => '13:00',
         ];

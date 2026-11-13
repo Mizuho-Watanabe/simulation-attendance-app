@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->date('date');
-            $table->datetime('clock_in');
-            $table->datetime('clock_out')->nullable();
+            $table->time('clock_in');
+            $table->time('clock_out')->nullable();
             $table->time('total_break_time')->default('00:00');
             $table->time('total_time')->nullable();
-            $table->tineInteger('attendance_status')->default('0');
+            $table->tinyInteger('attendance_status')->default('0');
             $table->timestamps();
         });
     }

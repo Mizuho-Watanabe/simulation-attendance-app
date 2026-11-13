@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -24,10 +26,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'admin_status' => '0',
         ]);
-    }
-
-    public function run(): void
-    {
+    
         //管理者ユーザーを1人登録
         User::firstOrCreate([ 'email' => 'user3@example.com'],
             ['name' => 'user3',
