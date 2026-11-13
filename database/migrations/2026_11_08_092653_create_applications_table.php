@@ -15,11 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('attendance_record_id')->constrained('attendance_records')->cascadeOnDelete();
             $table->date('date');
-            $table->datetime('new_clock_in');
-            $table->datetime('new_clock_out')->nullable();
-            $table->time('new_total_break_time')->default('00:00');
-            $table->time('new_total_time')->nullable();
-            $table->string('approval_status')->default('承認待ち');
+            $table->time('new_clock_in');
+            $table->time('new_clock_out')->nullable();
+            $table->tinyInteger('approval_status')->default('0');
             $table->text('comment');
             $table->timestamps();
         });
