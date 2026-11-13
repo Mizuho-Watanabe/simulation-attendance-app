@@ -61,6 +61,7 @@ class User extends Authenticatable
 
     public function getAdminStatusAttribute(): string
     {
-        return $this->admin_status ? '管理者' : '一般ユーザー';
+        $status = $this->attributes['admin_status'] ?? false;
+        return $status ? '管理者' : '一般ユーザー';
     }
 }
