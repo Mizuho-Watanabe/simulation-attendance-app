@@ -60,11 +60,13 @@ class AttendanceRecord extends Model
 
     public function getAttendanceStatusAttribute(): string
     {
-        return match($this->attendance_status) {
-            self::STATUS_OFF => '勤務外',
-            self::STATUS_WORKING => '勤務中',
-            self::STATUS_BREAKING => '休憩中',
-            self::STATUS_FINISHED => '退勤済み',
+        $status = $this->attendance_status;
+
+        return match ($status) {
+            0 => '勤務外',
+            1 => '出勤中',
+            2 => '休憩中',
+            3 => '退勤済み',
         };
     }
 }
