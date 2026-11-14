@@ -157,4 +157,9 @@ return [
         ]),
     ],
 
+    //logout後の画面設定
+    'redirects' => [
+        'logout' => config('app.url') . '/login'
+    ],
+
 ];
