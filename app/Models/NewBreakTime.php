@@ -21,10 +21,10 @@ class NewBreakTime extends Model
     ];
 
     /**
-     * このbreak_timeが属するattendance_recordを取得
+     * このnew_break_timeが属するapplicationを取得
      */
-    public function attendance_record(): BelongsTo
+    public function application(): BelongsTo
     {
-        return $this->belongsTo(Attendance_record::class);
+        return $this->belongsTo(ApplicatinRecord::class);
     }
 }

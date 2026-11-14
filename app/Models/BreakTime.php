@@ -25,6 +25,6 @@ class BreakTime extends Model
      */
     public function attendance_record(): BelongsTo
     {
-        return $this->belongsTo(Attendance_record::class);
+        return $this->belongsTo(AttendanceRecord::class);
     }
 }

@@ -48,9 +48,9 @@ class User extends Authenticatable
     /**
      * このuserが持つattendanceを取得
      */
-    public function attendances(): BelongsToMany
+    public function attendances(): hasMany
     {
-        return $this->belongsToMany(Attendance::class);
+        return $this->hasMany(Attendance::class);
     }
 
     /**
@@ -63,5 +63,13 @@ class User extends Authenticatable
     {
         $status = $this->attributes['admin_status'] ?? false;
         return $status ? '管理者' : '一般ユーザー';
+    }
+
+    /**
+     * そのときのattendance_statusを取得
+     */
+    public function todayAttendance()
+    {
+        return $this->hasOne(AttendanceRecord::class)->whereDate('date', today());
     }
 }
