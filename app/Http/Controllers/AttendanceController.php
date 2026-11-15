@@ -91,8 +91,19 @@ class AttendanceController extends Controller
         return redirect('/attendance');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        
+        $user = Auth::user();
+        $date = $request->filled('date')
+            ? Carbon::parse($request->query('date'))
+            : Carbon::today();
+        $previousMonth = $date->copy()->subMonth(1)->format('Y-m-01');
+        $nextMonth = $date->copy()->addMonth(1);
+
+        $formattedAttendanceRecords = AttendanceRecord::where('user_id', $user->id)
+                ->whereBetween('date', [$date->format('Y-m-01'), $date->format('Y-m-t')])
+                ->get();
+
+        return view('user.user-attendance-list', compact('user', 'formattedAttendanceRecords', 'date', 'previousMonth', 'nextMonth'));
     }
 }
