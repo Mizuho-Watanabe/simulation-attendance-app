@@ -50,23 +50,4 @@ class AttendanceRecord extends Model
         return $this->hasMany(Application::class);
     }
 
-    /**
-     * attendance_statusを取得
-     */
-    const STATUS_OFF = 0;
-    const STATUS_WORKING = 1;
-    const STATUS_BREAKING = 2;
-    const STATUS_FINISHED = 3;
-
-    public function getAttendanceStatusAttribute(): string
-    {
-        $status = $this->attendance_status;
-
-        return match ($status) {
-            0 => '勤務外',
-            1 => '出勤中',
-            2 => '休憩中',
-            3 => '退勤済み',
-        };
-    }
 }

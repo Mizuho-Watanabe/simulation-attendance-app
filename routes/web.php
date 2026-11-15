@@ -20,8 +20,8 @@ use App\Http\Controllers\AttendanceController;
 //一般ユーザー：Laravel/Fortifyを使用した認証
 Route::middleware('auth')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'clock_in']);
-    Route::post('/attendance', fn() => [AttendanceController::class, 'store']);
-    Route::get('/attendance/list', fn() => '勤怠一覧（準備中）');
+    Route::post('/attendance', [AttendanceController::class, 'store']);
+    Route::get('/attendance/list',[AttendanceController::class, 'index']);
     Route::get('/attendance/detail', fn() => '勤怠詳細（準備中）');
     Route::get('/stamp-correction-request/list', fn() => '申請一覧（準備中）');
 });
