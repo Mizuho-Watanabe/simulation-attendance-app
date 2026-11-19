@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\AttendanceRecord;
 use App\Models\BreakTime;
+use App\Models\Application;
+use App\Models\NewBreakTime;
+use App\Http\Requests\ApplicationRequest;
 
 class AttendanceController extends Controller
 {
@@ -91,6 +95,7 @@ class AttendanceController extends Controller
         return redirect('/attendance');
     }
 
+    //勤怠一覧画面の表示
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -105,5 +110,58 @@ class AttendanceController extends Controller
                 ->get();
 
         return view('user.user-attendance-list', compact('user', 'formattedAttendanceRecords', 'date', 'previousMonth', 'nextMonth'));
+    }
+
+    //勤怠詳細画面の表示
+    public function show(AttendanceRecord $attendance_record)
+    {
+        $user = Auth::user();
+        $breaks = BreakTime::where('attendance_record_id', $attendance_record->id)
+                ->get();
+        $application = Application::where('attendance_record_id', $attendance_record->id)
+                ->latest()
+                ->first();
+        
+        $data = [
+            'id' => $attendance_record->id,
+            'application' => $application,
+            'year' => Carbon::parse($attendance_record->date)->format('Y年'),
+            'date' => Carbon::parse($attendance_record->date)->format('m月d日'),
+            'clock_in' => Carbon::parse($attendance_record->clock_in)->format('H:i:s'),
+            'clock_out' => Carbon::parse($attendance_record->clock_out)->format('H:i:s'),
+            'breaks' => $breaks,
+            'comment' => $application ? $application->comment : '',
+        ];
+
+        return view('user.user-detail', compact('user', 'data'));
+    }
+
+    //勤怠詳細画面から修正申請を入力する
+    public function applicate(ApplicationRequest $request, AttendanceRecord $attendance_record)
+    {
+        $user = Auth::user();
+
+        DB::transaction(function () use ($request, $attendance_record) {
+        $application = Application::create([
+                'attendance_record_id' => $attendance_record->id,
+                'date' => $attendance_record->date,
+                'new_clock_in' => $request->input('new_clock_in'),
+                'new_clock_out' => $request->input('new_clock_out'),
+                'comment' => $request->input('comment'),
+            ]);
+
+            $new_break_ins = $request->input('new_break_in', []);
+            $new_break_outs = $request->input('new_break_out', []);
+
+            foreach ($new_break_ins as $index => $new_break_in) {
+                NewBreakTime::create([
+                    'application_id' => $application->id,
+                    'new_break_in' => $new_break_in,
+                    'new_break_out' => $new_break_outs[$index],
+                ]);
+            }
+        });
+
+        return redirect('/attendance/detail/' . $attendance_record->id); 
     }
 }

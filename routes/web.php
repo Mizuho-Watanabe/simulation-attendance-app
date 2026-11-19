@@ -21,9 +21,10 @@ use App\Http\Controllers\AttendanceController;
 Route::middleware('auth')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'clock_in']);
     Route::post('/attendance', [AttendanceController::class, 'store']);
-    Route::get('/attendance/list',[AttendanceController::class, 'index']);
-    Route::get('/attendance/detail', fn() => '勤怠詳細（準備中）');
-    Route::get('/stamp-correction-request/list', fn() => '申請一覧（準備中）');
+    Route::get('/attendance/list', [AttendanceController::class, 'index']);
+    Route::get('/attendance/detail/{attendance_record}', [AttendanceController::class, 'show'])->name('show');
+    Route::post('/attendance/detail/{attendance_record}', [AttendanceController::class, 'applicate']);
+    Route::get('/stamp_correction_request/list', fn() => '申請一覧（準備中）');
 });
 
 //管理者ユーザー：以下のルートとAdminLoginControllerを使用してログイン
