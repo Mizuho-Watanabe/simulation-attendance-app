@@ -21,13 +21,24 @@ class AdminLoginController extends Controller
         if (Auth::attempt($credentials)) {
             if (Auth::user()->admin_status === '管理者') {
                 $request->session()->regenerate();
-                return '勤怠一覧';
+                return redirect('/admin/attendance/list');
             }
 
-            Auth::logout();
             return back()->withErrors([
                 'email' => '管理者権限がありません',
             ]);
         }
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        // セッションの再生成なども行うとより安全です
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // ログアウト後の行き先を指定してリダイレクトする
+        return redirect('/admin/login');
     }
 }
