@@ -35,7 +35,7 @@ class Application extends Model
     /**
      * このapplicationが持つnew_break_timeを取得
      */
-    public function new_breal_times(): hasMany
+    public function new_break_times(): hasMany
     {
         return $this->hasMany(NewBreakTime::class);
     }
