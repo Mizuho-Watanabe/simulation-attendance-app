@@ -1,0 +1,182 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Models\AttendanceRecord;
+use App\Models\BreakTime;
+use App\Models\Application;
+use App\Models\NewBreakTime;
+use App\Http\Requests\ApplicationRequest;
+
+class AttendanceController extends Controller
+{
+    //出勤登録画面の表示
+    public function clock_in()
+    {
+        $user = Auth::user();
+        $formattedDate = Carbon::today()->format('Y-m-d');
+        $formattedTime = Carbon::now();
+
+        return view('user.attendance-register', compact('user', 'formattedDate', 'formattedTime'));
+    }
+
+    //出勤登録機能
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+        $now = Carbon::now();
+
+        $attendance = AttendanceRecord::where('user_id', $user->id)
+                    ->whereDate('date', $today)
+                    ->first();
+        $action = $request->input('action');
+
+        //レコードがなければAttendanceRecordレコードを新規作成
+        if (!$attendance) {
+            AttendanceRecord::create([
+                'user_id' => $user->id,
+                'date' => $today,
+                'clock_in' => $now,
+                'attendance_status' =>1,
+            ]);
+        } else {
+            //break_inが押されたらBreakTimeレコードを新規作成かつAttendanceRecordの上書き
+            if ($action === 'break_in') {
+                BreakTime::create([
+                    'attendance_record_id' => $attendance->id,
+                    'break_in' => $now,
+                ]);
+                $attendance->update([
+                    'attendance_status' => 2,
+                ]);
+            } elseif ($action === 'break_out') {
+                //break_outが押されたらBreakTimeとAttendanceRecordを上書き
+                $breaktime = BreakTime::where('attendance_record_id', $attendance->id)
+                            ->whereNull('break_out')
+                            ->update([
+                                'break_out' => $now,
+                            ]);
+                $attendance->update([
+                    'attendance_status' => 1,
+                ]);
+            } elseif ($action === 'clock_out') {
+                //clock_outが押されたらAttendanceRecordを上書き
+                $totalSeconds = 0;
+                $break_time_records = BreakTime::where('attendance_record_id', $attendance->id)->get();
+
+                foreach ($break_time_records as $break_time_record) {
+                    $break_in_time = new Carbon($break_time_record->break_in);
+                    $break_out_time = new Carbon($break_time_record->break_out);
+                    $diffInSeconds = $break_in_time->diffInSeconds($break_out_time);
+
+                    $totalSeconds += $diffInSeconds;
+                }
+                $total_break_time = gmdate('H:i:s', $totalSeconds);
+
+                $clock_in_time = new Carbon($attendance->clock_in);
+                $clock_out_time = $now;
+                $total_time = gmdate('H:i:s', $clock_in_time->diffInSeconds($clock_out_time));
+
+                $attendance->update([
+                    'clock_out' => $now,
+                    'total_break_time' => $total_break_time,
+                    'total_time' => $total_time,
+                    'attendance_status' => 3,
+                ]);
+            }
+        }
+
+        return redirect('/attendance');
+    }
+
+    //勤怠一覧画面の表示
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $date = $request->filled('date')
+            ? Carbon::parse($request->query('date'))
+            : Carbon::today();
+        $previousMonth = $date->copy()->subMonth(1)->format('Y-m-01');
+        $nextMonth = $date->copy()->addMonth(1);
+
+        $formattedAttendanceRecords = AttendanceRecord::where('user_id', $user->id)
+                ->whereBetween('date', [$date->format('Y-m-01'), $date->format('Y-m-t')])
+                ->get();
+
+        return view('user.user-attendance-list', compact('user', 'formattedAttendanceRecords', 'date', 'previousMonth', 'nextMonth'));
+    }
+
+    //勤怠詳細画面の表示
+    public function show(AttendanceRecord $attendance_record)
+    {
+        $user = Auth::user();
+        $breaks = BreakTime::where('attendance_record_id', $attendance_record->id)
+                ->get();
+        $application = Application::where('attendance_record_id', $attendance_record->id)
+                ->latest()
+                ->first();
+        
+        $data = [
+            'id' => $attendance_record->id,
+            'application' => $application,
+            'year' => Carbon::parse($attendance_record->date)->format('Y年'),
+            'date' => Carbon::parse($attendance_record->date)->format('m月d日'),
+            'clock_in' => Carbon::parse($attendance_record->clock_in)->format('H:i:s'),
+            'clock_out' => Carbon::parse($attendance_record->clock_out)->format('H:i:s'),
+            'breaks' => $breaks,
+            'comment' => $application ? $application->comment : '',
+        ];
+
+        return view('user.user-detail', compact('user', 'data'));
+    }
+
+    //勤怠詳細画面から修正申請を入力する
+    public function applicate(ApplicationRequest $request, AttendanceRecord $attendance_record)
+    {
+        $user = Auth::user();
+
+        DB::transaction(function () use ($request, $attendance_record) {
+        $application = Application::create([
+                'attendance_record_id' => $attendance_record->id,
+                'date' => $attendance_record->date,
+                'new_clock_in' => $request->input('new_clock_in'),
+                'new_clock_out' => $request->input('new_clock_out'),
+                'comment' => $request->input('comment'),
+            ]);
+
+            $new_break_ins = $request->input('new_break_in', []);
+            $new_break_outs = $request->input('new_break_out', []);
+
+            foreach ($new_break_ins as $index => $new_break_in) {
+                NewBreakTime::create([
+                    'application_id' => $application->id,
+                    'new_break_in' => $new_break_in,
+                    'new_break_out' => $new_break_outs[$index],
+                ]);
+            }
+        });
+
+        return redirect('/attendance/detail/' . $attendance_record->id); 
+    }
+
+    //申請一覧画面の表示
+    public function applicationList (Application $application) 
+    {
+        $user = Auth::user();
+        $userId = Auth::id();
+
+        $formattedApplications = Application::whereHas('attendance_record', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->latest()
+        ->get();
+
+        return view('user.user-application-list', compact('user', 'formattedApplications'));
+    }
+}

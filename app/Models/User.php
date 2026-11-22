@@ -6,8 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\AttendanceRecord;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -46,11 +49,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * このuserが持つattendanceを取得
+     * このuserが持つattendance_recordsを取得
      */
-    public function attendances(): BelongsToMany
+    public function attendance_records()
     {
-        return $this->belongsToMany(Attendance::class);
+        return $this->hasMany(AttendanceRecord::class, 'user_id');
     }
 
     /**
@@ -63,5 +66,25 @@ class User extends Authenticatable
     {
         $status = $this->attributes['admin_status'] ?? false;
         return $status ? '管理者' : '一般ユーザー';
+    }
+
+    /**
+     * attendance_statusを取得
+     */
+
+    public function getAttendanceStatusAttribute()
+    {
+        $todayRecord = $this->attendance_records()
+            ->whereDate('date', Carbon::today())
+            ->first();
+
+        $statusNum = $todayRecord ? $todayRecord->attendance_status : 0;
+
+        return match ($statusNum) {
+            0 => '勤務外',
+            1 => '出勤中',
+            2 => '休憩中',
+            3 => '退勤済み',
+                };
     }
 }

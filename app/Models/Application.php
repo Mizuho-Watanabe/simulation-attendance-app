@@ -29,7 +29,15 @@ class Application extends Model
      */
     public function attendance_record(): BelongsTo
     {
-        return $this->belongsTo(Attendance_record::class);
+        return $this->belongsTo(AttendanceRecord::class);
+    }
+
+    /**
+     * このapplicationが持つnew_break_timeを取得
+     */
+    public function new_breal_times(): hasMany
+    {
+        return $this->hasMany(NewBreakTime::class);
     }
 
     /**
@@ -40,6 +48,7 @@ class Application extends Model
 
     public function getApprovalStatusAttribute(): string
     {
-        return $this->approval_status ? '承認済み' : '承認待ち';
+        $status = $this->attributes['approval_status'] ?? false;
+        return $status ? '承認済み' : '承認待ち';
     }
 }
