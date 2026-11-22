@@ -164,4 +164,19 @@ class AttendanceController extends Controller
 
         return redirect('/attendance/detail/' . $attendance_record->id); 
     }
+
+    //申請一覧画面の表示
+    public function applicationList (Application $application) 
+    {
+        $user = Auth::user();
+        $userId = Auth::id();
+
+        $formattedApplications = Application::whereHas('attendance_record', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->latest()
+        ->get();
+
+        return view('user.user-application-list', compact('user', 'formattedApplications'));
+    }
 }

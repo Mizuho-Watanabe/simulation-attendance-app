@@ -48,6 +48,7 @@ class Application extends Model
 
     public function getApprovalStatusAttribute(): string
     {
-        return $this->approval_status ? '承認済み' : '承認待ち';
+        $status = $this->attributes['approval_status'] ?? false;
+        return $status ? '承認済み' : '承認待ち';
     }
 }

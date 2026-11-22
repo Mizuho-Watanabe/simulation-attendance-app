@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/list', [AttendanceController::class, 'index']);
     Route::get('/attendance/detail/{attendance_record}', [AttendanceController::class, 'show'])->name('show');
     Route::post('/attendance/detail/{attendance_record}', [AttendanceController::class, 'applicate']);
-    Route::get('/stamp_correction_request/list', fn() => '申請一覧（準備中）');
+    Route::get('/stamp_correction_request/list', [AttendanceController::class, 'applicationList']);
 });
 
 //管理者ユーザー：以下のルートとAdminLoginControllerを使用してログイン
