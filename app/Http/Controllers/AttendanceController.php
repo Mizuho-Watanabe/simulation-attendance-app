@@ -81,7 +81,8 @@ class AttendanceController extends Controller
 
                 $clock_in_time = new Carbon($attendance->clock_in);
                 $clock_out_time = $now;
-                $total_time = gmdate('H:i:s', $clock_in_time->diffInSeconds($clock_out_time));
+                $total_duty_time = $clock_in_time->diffInSeconds($clock_out_time);
+                $total_time = gmdate('H:i:s', $total_duty_time-$totalSeconds);
 
                 $attendance->update([
                     'clock_out' => $now,
