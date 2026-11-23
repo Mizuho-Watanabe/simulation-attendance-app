@@ -37,7 +37,7 @@ Route::middleware('check.admin')->group(function () {
     Route::get('/admin/attendance/list', [AdminController::class, 'index']);
     Route::get('/admin/attendance/{attendance_record}', [AdminController::class, 'show']);
     Route::post('/attendance/{attendance_record}', [AdminController::class, 'update']);
-    Route::get('/admin/staff/list', fn() => '管理者用スタッフ一覧画面(準備中)');
+    Route::get('/admin/staff/list', [AdminController::class, 'staffindex']);
     Route::get('/admin/attendance/stahh/{user}', fn() => '管理者用スタッフ別一覧画面(準備中)');
     Route::get('/stamp_correction_request/list', fn() => '管理者用申請一覧画面(準備中)');
     Route::get('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');

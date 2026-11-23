@@ -137,6 +137,13 @@ class AdminController extends Controller
         });
 
         return redirect('/admin/attendance/list');
+    }
 
+    //スタッフ一覧画面の表示
+    public function staffindex () {
+        $user = Auth::user();
+        $users = User::get();
+
+        return view('admin.staff-list', compact('user', 'users'));
     }
 }
