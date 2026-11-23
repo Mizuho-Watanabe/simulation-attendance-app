@@ -173,4 +173,15 @@ class AdminController extends Controller
             'formattedAttendanceRecords' => $attendanceRecords,
         ]);
     }
+
+    //修正申請一覧表示画面の表示
+    public function applicateIndex (Application $application)
+    {
+        $user = Auth::user();
+
+        $applications = Application::with('attendance_record.user')
+                ->get();
+
+        return view('admin.admin-application-list', compact('user', 'applications'));
+    }
 }

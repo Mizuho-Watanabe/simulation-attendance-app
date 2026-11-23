@@ -39,7 +39,7 @@ Route::middleware('check.admin')->group(function () {
     Route::post('/attendance/{attendance_record}', [AdminController::class, 'update']);
     Route::get('/admin/staff/list', [AdminController::class, 'staffIndex']);
     Route::get('/admin/attendance/staff/{user}', [AdminController::class, 'staffShow']);
-    Route::get('/stamp_correction_request/list', fn() => '管理者用申請一覧画面(準備中)');
+    Route::get('/stamp_correction_request/list', [AdminController::class, 'applicateIndex']);
     Route::get('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');
     Route::post('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');
     Route::post('/admin/logout', [AdminLoginController::class, 'logout']);

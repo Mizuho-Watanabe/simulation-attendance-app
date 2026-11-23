@@ -51,4 +51,20 @@ class Application extends Model
         $status = $this->attributes['approval_status'] ?? false;
         return $status ? '承認済み' : '承認待ち';
     }
+
+    /**
+     * user_nameを取得
+     */
+    public function getUserAttribute()
+    {
+        return $this->attendance_record?->user;
+    }
+
+    /**
+     * AttendanceRecordを取得
+     */
+    public function getAttendanceRecordAttribute()
+    {
+        return $this->attendance_record()->first();
+    }
 }
