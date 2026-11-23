@@ -67,4 +67,12 @@ class Application extends Model
     {
         return $this->attendance_record()->first();
     }
+
+    /**
+     * application_dateに申請日時を入力
+     */
+    public function getApplicationDateAttribute()
+    {
+        return $this->created_at;
+    }
 }
