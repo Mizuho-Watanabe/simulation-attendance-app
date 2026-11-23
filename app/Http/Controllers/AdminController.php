@@ -140,10 +140,37 @@ class AdminController extends Controller
     }
 
     //スタッフ一覧画面の表示
-    public function staffindex () {
+    public function staffIndex ()
+    {
         $user = Auth::user();
         $users = User::get();
 
         return view('admin.staff-list', compact('user', 'users'));
+    }
+
+    //スタッフ別勤怠一覧画面の表示
+    public function staffShow(Request $request, User $user)
+    {
+        $admin = Auth::user();
+        $targetUser = User::where('id', $user->id)
+                ->first();
+
+        $date = $request->filled('date')
+            ? Carbon::parse($request->query('date'))
+            : Carbon::today();
+        $previousMonth = $date->copy()->subMonth(1)->format('Y-m-01');
+        $nextMonth = $date->copy()->addMonth(1);
+
+        $attendanceRecords = AttendanceRecord::where('user_id', $user->id)
+                ->whereBetween('date', [$date->format('Y-m-01'), $date->format('Y-m-t')])
+                ->get();
+
+        return view('admin.staff-attendance-list', [
+            'user' => $targetUser,
+            'date' => $date,
+            'previousMonth' => $previousMonth,
+            'nextMonth' => $nextMonth,
+            'formattedAttendanceRecords' => $attendanceRecords,
+        ]);
     }
 }
