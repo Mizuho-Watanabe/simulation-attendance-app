@@ -167,7 +167,7 @@ class AttendanceController extends Controller
     }
 
     //申請一覧画面の表示
-    public function applicationList (Application $application) 
+    public function applicationList () 
     {
         $user = Auth::user();
         $userId = Auth::id();

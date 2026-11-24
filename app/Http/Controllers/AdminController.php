@@ -175,7 +175,7 @@ class AdminController extends Controller
     }
 
     //修正申請一覧表示画面の表示
-    public function applicateIndex (Application $application)
+    public function applicationIndex ()
     {
         $user = Auth::user();
 

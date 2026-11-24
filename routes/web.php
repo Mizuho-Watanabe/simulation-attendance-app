@@ -25,7 +25,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/list', [AttendanceController::class, 'index']);
     Route::get('/attendance/detail/{attendance_record}', [AttendanceController::class, 'show'])->name('show');
     Route::post('/attendance/detail/{attendance_record}', [AttendanceController::class, 'applicate']);
-    Route::get('/stamp_correction_request/list', [AttendanceController::class, 'applicationList']);
+
+    //修正申請のルートは一般ユーザーと管理者ユーザーで共通
+    Route::get('/stamp_correction_request/list', function () {
+        $user = Auth::user();
+        if ($user->admin_status === '管理者') {
+            return app(AdminController::class)->applicationIndex();
+        }
+        return app(AttendanceController::class)->applicationList();
+    });
 });
 
 //管理者ユーザー：以下のルートとAdminLoginControllerを使用してログイン
@@ -39,7 +47,6 @@ Route::middleware('check.admin')->group(function () {
     Route::post('/attendance/{attendance_record}', [AdminController::class, 'update']);
     Route::get('/admin/staff/list', [AdminController::class, 'staffIndex']);
     Route::get('/admin/attendance/staff/{user}', [AdminController::class, 'staffShow']);
-    Route::get('/stamp_correction_request/list', [AdminController::class, 'applicateIndex']);
     Route::get('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');
     Route::post('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');
     Route::post('/admin/logout', [AdminLoginController::class, 'logout']);
