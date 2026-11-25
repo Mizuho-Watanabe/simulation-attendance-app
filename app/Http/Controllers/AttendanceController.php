@@ -145,7 +145,7 @@ class AttendanceController extends Controller
         DB::transaction(function () use ($request, $attendance_record) {
         $application = Application::create([
                 'attendance_record_id' => $attendance_record->id,
-                'date' => $attendance_record->date,
+                'new_date' => $attendance_record->date,
                 'new_clock_in' => $request->input('new_clock_in'),
                 'new_clock_out' => $request->input('new_clock_out'),
                 'comment' => $request->input('comment'),

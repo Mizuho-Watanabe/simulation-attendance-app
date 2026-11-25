@@ -184,4 +184,18 @@ class AdminController extends Controller
 
         return view('admin.admin-application-list', compact('user', 'applications'));
     }
+
+    //修正申請承認画面の表示
+    public function applicationShow(Request $request, Application $application)
+    {
+        $admin = Auth::user();
+        $user = $application->user;
+
+        $targetApplication = Application::where('id', $application->id)
+                ->first();
+
+        return ;
+    }
+
+    //修正申請承認機能
 }

@@ -17,7 +17,7 @@ class Application extends Model
      */
     protected $fillable = [
         'attendance_record_id',
-        'date',
+        'new_date',
         'new_clock_in',
         'new_clock_out',
         'approval_status',
