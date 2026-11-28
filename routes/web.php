@@ -48,6 +48,6 @@ Route::middleware('check.admin')->group(function () {
     Route::get('/admin/staff/list', [AdminController::class, 'staffIndex']);
     Route::get('/admin/attendance/staff/{user}', [AdminController::class, 'staffShow']);
     Route::get('/stamp_correction_request/approve/{application}', [AdminController::class, 'applicationShow']);
-    Route::post('/stamp_correction_request/approve/{application}', fn() => '管理者用修正申請承認画面(準備中)');
+    Route::post('/stamp_correction_request/approve/{application}', [AdminController::class, 'approval']);
     Route::post('/admin/logout', [AdminLoginController::class, 'logout']);
 });

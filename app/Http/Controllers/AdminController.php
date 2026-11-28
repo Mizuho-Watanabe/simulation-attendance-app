@@ -108,8 +108,7 @@ class AdminController extends Controller
         }
 
         $totalSeconds = 0;
-        $attendance_record_id = $attendance_record->id;
-        $break_time_records = BreakTime::where('attendance_record_id', $attendance_record_id)
+        $break_time_records = BreakTime::where('attendance_record_id', $attendance_record->id)
                 ->get();
 
         foreach ($break_time_records as $break_time_record) {
@@ -191,11 +190,94 @@ class AdminController extends Controller
         $admin = Auth::user();
         $user = $application->user;
 
-        $targetApplication = Application::where('id', $application->id)
-                ->first();
+        $application->new_date = new Carbon($application->new_date);
 
-        return ;
+        $application->newBreaks = NewBreakTime::where('application_id', $application->id)
+                ->get();
+
+        $items = $application->newBreaks;
+        foreach ($items as &$item) {
+        if (is_array($item)) {
+        $item['break_in'] = $item['new_break_in'] ?? null;
+        $item['break_out'] = $item['new_break_out'] ?? null;
+        } else {
+        $item->break_in = $item->new_break_in;
+        $item->break_out = $item->new_break_out;
+        }
+        }
+        unset($item);  //参照渡しの後は必ず解除する
+        $application->proposalBreaks = $items;
+
+        return view('admin.admin-application-detail', compact('user', 'application'));
     }
 
     //修正申請承認機能
+    public function approval(Request $request, Application $application)
+    {
+        $user = Auth::user();
+
+        DB::transaction(function () use ($request, $application) {
+
+            $application->update([
+                'approval_status' => 1,
+            ]);
+
+            //修正後の勤務時間・休憩時間を取得し、テーブルを更新する
+            $attendance_record = AttendanceRecord::where('id', $application->attendance_record_id)
+                    ->first();
+           $new_break_ins = $request->input('new_break_in', []);
+            $new_break_outs = $request->input('new_break_out', []);
+            $validBreaks = [];
+
+            BreakTime::where('attendance_record_id', $attendance_record->id)
+                    ->delete();
+            foreach ($new_break_ins as $index => $new_break_in) {
+                $new_break_out = $new_break_outs[$index] ?? null;
+
+                $inVal = is_string($new_break_in) ? trim($new_break_in) : $new_break_in;
+                $outVal = is_string($new_break_out) ? trim($new_break_out) : $new_break_out;
+                if (empty($new_break_in) && empty($new_break_out)) { continue; }
+                $validBreaks[] = [
+                    'break_in' => $inVal ?: null,
+                    'break_out' => $outVal ?: null,
+                ];
+            }
+
+            foreach ($validBreaks as $break) {
+                if ($break['break_in']) {
+                    Breaktime::create([
+                    'attendance_record_id' => $attendance_record->id,
+                    'break_in'  => $break['break_in'],
+                    'break_out' => $break['break_out'],
+                    ]);
+                }
+            }
+
+            $totalSeconds = 0;
+            $break_time_records = BreakTime::where('attendance_record_id', $attendance_record->id)
+                ->get();
+
+            foreach ($break_time_records as $break_time_record) {
+                $break_in_time = new Carbon($break_time_record->break_in);
+                $break_out_time = new Carbon($break_time_record->break_out);
+                $diffInSeconds = $break_in_time->diffInSeconds($break_out_time);
+
+                $totalSeconds += $diffInSeconds;
+            }
+            $total_break_time = gmdate('H:i:s', $totalSeconds);
+
+            $clock_in_time = new Carbon($application->new_clock_in);
+            $clock_out_time = new Carbon($application->new_clock_out);
+            $total_duty_time = $clock_in_time->diffInSeconds($clock_out_time);
+            $total_time = gmdate('H:i:s', $total_duty_time-$totalSeconds);
+            $attendance_record->update([
+                'clock_in' => $application->new_clock_in,
+                'clock_out' => $application->new_clock_out,
+                'total_break_time' => $total_break_time,
+                'total_time' => $total_time,
+            ]);
+        });
+
+        return redirect('/stamp_correction_request/approve/' . $application->id);
+    }
 }

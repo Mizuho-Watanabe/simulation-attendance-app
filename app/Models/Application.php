@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\hasMany;
 
 class Application extends Model
 {
@@ -74,5 +75,13 @@ class Application extends Model
     public function getApplicationDateAttribute()
     {
         return $this->created_at;
+    }
+
+    /**
+     * newBreaksを取得
+     */
+    public function getNewBreaksAttribute()
+    {
+        return $this->new_break_times()->get();
     }
 }

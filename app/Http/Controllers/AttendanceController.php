@@ -178,6 +178,14 @@ class AttendanceController extends Controller
         ->latest()
         ->get();
 
+        foreach ($formattedApplications as $app) {
+        if (is_array($app)) {
+            $app['date'] = $app['new_date'] ?? null;
+        } else {
+            $app->date = $app->new_date;
+        }
+    }
+
         return view('user.user-application-list', compact('user', 'formattedApplications'));
     }
 }
