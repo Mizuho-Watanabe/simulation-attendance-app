@@ -81,7 +81,8 @@ class AttendanceController extends Controller
 
                 $clock_in_time = new Carbon($attendance->clock_in);
                 $clock_out_time = $now;
-                $total_time = gmdate('H:i:s', $clock_in_time->diffInSeconds($clock_out_time));
+                $total_duty_time = $clock_in_time->diffInSeconds($clock_out_time);
+                $total_time = gmdate('H:i:s', $total_duty_time-$totalSeconds);
 
                 $attendance->update([
                     'clock_out' => $now,
@@ -144,7 +145,7 @@ class AttendanceController extends Controller
         DB::transaction(function () use ($request, $attendance_record) {
         $application = Application::create([
                 'attendance_record_id' => $attendance_record->id,
-                'date' => $attendance_record->date,
+                'new_date' => $attendance_record->date,
                 'new_clock_in' => $request->input('new_clock_in'),
                 'new_clock_out' => $request->input('new_clock_out'),
                 'comment' => $request->input('comment'),
@@ -166,7 +167,7 @@ class AttendanceController extends Controller
     }
 
     //申請一覧画面の表示
-    public function applicationList (Application $application) 
+    public function applicationList () 
     {
         $user = Auth::user();
         $userId = Auth::id();
@@ -176,6 +177,14 @@ class AttendanceController extends Controller
         })
         ->latest()
         ->get();
+
+        foreach ($formattedApplications as $app) {
+        if (is_array($app)) {
+            $app['date'] = $app['new_date'] ?? null;
+        } else {
+            $app->date = $app->new_date;
+        }
+    }
 
         return view('user.user-application-list', compact('user', 'formattedApplications'));
     }

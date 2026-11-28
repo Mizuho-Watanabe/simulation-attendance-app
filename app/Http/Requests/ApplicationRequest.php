@@ -23,9 +23,9 @@ class ApplicationRequest extends FormRequest
             'new_clock_in' => ['required', 'date_format:H:i:s'],
             'new_clock_out' => ['required', 'date_format:H:i:s', 'after:new_clock_in'],
             'new_break_in' => ['array'],
-            'new_break_in.*' => ['date_format:H:i:s', 'after:new_clock_in', 'before:new_clock_out', ],
+            'new_break_in.*' => ['nullable', 'date_format:H:i:s', 'after:new_clock_in', 'before:new_clock_out', ],
             'new_break_out' => ['array'],
-            'new_break_out.*' => ['date_format:H:i:s', 'before:new_clock_out'],
+            'new_break_out.*' => ['nullable', 'date_format:H:i:s', 'before:new_clock_out'],
             'comment' => ['required', 'string', 'max:255'],
         ];
     }

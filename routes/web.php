@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,21 +13,41 @@ use App\Http\Controllers\AttendanceController;
 | Here is where you can register web routes for your application. These
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "web" middleware group. Make something great!
-| Route::get('/', function () {
-    return view('welcome');
-});
+| 
 */
 
-//一般ユーザー：Laravel/Fortifyを使用した認証
+Route::get('/welcome', function () {return view('welcome'); });
+
+//一般ユーザー：Laravel/Fortifyを使用した認証・AttendanceContorollerで機能実装
 Route::middleware('auth')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'clock_in']);
     Route::post('/attendance', [AttendanceController::class, 'store']);
     Route::get('/attendance/list', [AttendanceController::class, 'index']);
     Route::get('/attendance/detail/{attendance_record}', [AttendanceController::class, 'show'])->name('show');
     Route::post('/attendance/detail/{attendance_record}', [AttendanceController::class, 'applicate']);
-    Route::get('/stamp_correction_request/list', [AttendanceController::class, 'applicationList']);
+
+    //修正申請のルートは一般ユーザーと管理者ユーザーで共通
+    Route::get('/stamp_correction_request/list', function () {
+        $user = Auth::user();
+        if ($user->admin_status === '管理者') {
+            return app(AdminController::class)->applicationIndex();
+        }
+        return app(AttendanceController::class)->applicationList();
+    });
 });
 
 //管理者ユーザー：以下のルートとAdminLoginControllerを使用してログイン
-Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm']);
 Route::post('/admin/login', [AdminLoginController::class, 'login']);
+
+//管理者ユーザー：CheckAdminMiddlewareにて管理者チェックおよびAdminControllerで機能実装
+Route::middleware('check.admin')->group(function () {
+    Route::get('/admin/attendance/list', [AdminController::class, 'index']);
+    Route::get('/admin/attendance/{attendance_record}', [AdminController::class, 'show']);
+    Route::post('/attendance/{attendance_record}', [AdminController::class, 'update']);
+    Route::get('/admin/staff/list', [AdminController::class, 'staffIndex']);
+    Route::get('/admin/attendance/staff/{user}', [AdminController::class, 'staffShow']);
+    Route::get('/stamp_correction_request/approve/{application}', [AdminController::class, 'applicationShow']);
+    Route::post('/stamp_correction_request/approve/{application}', [AdminController::class, 'approval']);
+    Route::post('/admin/logout', [AdminLoginController::class, 'logout']);
+});

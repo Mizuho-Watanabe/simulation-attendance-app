@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\hasMany;
 
 class Application extends Model
 {
@@ -17,7 +18,7 @@ class Application extends Model
      */
     protected $fillable = [
         'attendance_record_id',
-        'date',
+        'new_date',
         'new_clock_in',
         'new_clock_out',
         'approval_status',
@@ -35,7 +36,7 @@ class Application extends Model
     /**
      * このapplicationが持つnew_break_timeを取得
      */
-    public function new_breal_times(): hasMany
+    public function new_break_times(): hasMany
     {
         return $this->hasMany(NewBreakTime::class);
     }
@@ -50,5 +51,37 @@ class Application extends Model
     {
         $status = $this->attributes['approval_status'] ?? false;
         return $status ? '承認済み' : '承認待ち';
+    }
+
+    /**
+     * user_nameを取得
+     */
+    public function getUserAttribute()
+    {
+        return $this->attendance_record?->user;
+    }
+
+    /**
+     * AttendanceRecordを取得
+     */
+    public function getAttendanceRecordAttribute()
+    {
+        return $this->attendance_record()->first();
+    }
+
+    /**
+     * application_dateに申請日時を入力
+     */
+    public function getApplicationDateAttribute()
+    {
+        return $this->created_at;
+    }
+
+    /**
+     * newBreaksを取得
+     */
+    public function getNewBreaksAttribute()
+    {
+        return $this->new_break_times()->get();
     }
 }

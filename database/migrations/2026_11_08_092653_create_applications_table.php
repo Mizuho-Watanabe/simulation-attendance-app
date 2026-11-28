@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attendance_record_id')->constrained('attendance_records')->cascadeOnDelete();
-            $table->date('date');
+            $table->date('new_date');
             $table->time('new_clock_in');
             $table->time('new_clock_out')->nullable();
             $table->tinyInteger('approval_status')->default('0');

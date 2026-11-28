@@ -25,6 +25,6 @@ class NewBreakTime extends Model
      */
     public function application(): BelongsTo
     {
-        return $this->belongsTo(ApplicatinRecord::class);
+        return $this->belongsTo(Application::class);
     }
 }
